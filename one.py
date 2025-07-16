@@ -22,7 +22,9 @@ from langchain.memory import ConversationSummaryMemory
 import sys
 import io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-llm = ChatTongyi(model_name="qwen-turbo",dashscope_api_key="sk-1c9ecdbc37244d809ce41861a47b4e76")
+llm=Ollama(model_name="deepseek-r1:7b",base_url="http://localhost:8080")
+#llm = ChatTongyi(model_name="qwen-turbo",dashscope_api_key="sk-1c9ecdbc37244d809ce41861a47b4e76")
+#llm=DeepSeekChat(model_name="deepseek-chat",api_key="") DeepSeek模型
 CHROMA_DB_DIR = "./chroma_db"
 vectorstore=None
 # os.environ["USER_AGENT"] = "LangChain-App/1.0 (Windows NT 10.0; Win64; x64)"
@@ -73,7 +75,7 @@ def cleanup_chroma_db():
         shutil.rmtree(CHROMA_DB_DIR)
         print("已清理向量数据库目录：", CHROMA_DB_DIR)
 
-def load_file_url_documents(file_path=None, url=None):
+def load_file_url_documents(file_path=None, url=None):#从本地文件和URL加载文档
     docs = []
     if file_path:
         if os.path.isfile(file_path):
@@ -100,7 +102,7 @@ def load_file_url_documents(file_path=None, url=None):
     print(f"从文件/URL加载了 {len(docs)} 个文档。")
     return docs
 
-def create_vectorstore(docs):
+def create_vectorstore(docs):#创建RAG向量数据库
     if not docs:
         print("没有可用于创建向量数据库的文档。")
         return None
@@ -119,6 +121,7 @@ class DocumentQA:
     def __init__(self,prompt_template):
         self.vectorstore = None
         self.qa_chain = None
+        #在提示词中需要包含{chat_history}和{context}和{question}
         self.prompt_template = prompt_template
         self.memory=ConversationSummaryMemory(
             llm=llm,
@@ -136,7 +139,7 @@ class DocumentQA:
         if not self.vectorstore:
             raise ValueError("Vectorstore not initialized. Please call 'init_with_vectorstore' first.")
 
-        if(self.prompt_template==""):
+        if(self.prompt_template==""):#默认提示词
             prompt_template='''
             你是一名天文学家，你精通天文知识。
             请保持严谨性，在回答时不要出现任何错误。
@@ -196,7 +199,6 @@ if __name__== "__main__":
             db_docs = load_documents_from_db(conn)
         finally:
             conn.close()
-
     # 2. 从本地文件和URL加载文档 (请根据需要修改路径和URL)
     # 示例: file_path="your_folder", url="http://example.com"
     file_docs = load_file_url_documents(file_path=r'D:\下载\实训', url=None)
