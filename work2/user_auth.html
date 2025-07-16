@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户认证系统（简化版）</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            max-width: 350px;
+            width: 100%;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 2em;
+            text-align: center;
+        }
+
+        h2 {
+            color: #1877f2;
+        }
+
+        label {
+            display: block;
+            margin: 1em 0 0.2em;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.7em;
+            margin-bottom: 0.5em;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.7em;
+            background: #1877f2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: #166fe5;
+        }
+
+        .error {
+            color: #f02849;
+            margin-bottom: 1em;
+            padding: 0.5em;
+            background-color: #fbebeb;
+            border-radius: 4px;
+        }
+
+        .link {
+            color: #1877f2;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .logout {
+            margin-top: 1em;
+            background: #dc3545;
+        }
+
+        .logout:hover {
+            background: #c82333;
+        }
+
+        p {
+            text-align: left;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="app"></div>
+    <script>
+        // 后端API地址
+        const API = "http://127.0.0.1:8000";
+        // 保存token
+        let token = localStorage.getItem("token") || null;
+        // 保存用户信息
+        let user = null;
+
+        // 工具函数：显示内容
+        function render(html) {
+            document.getElementById("app").innerHTML = html;
+        }
+
+        // 工具函数：表单验证
+        function validateRegister({ username, email, password, confirm }) {
+            if (!username || username.length < 3 || username.length > 20) return "用户名需3-20字符";
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "邮箱格式不正确";
+            if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) return "密码至少8位且含字母和数字";
+            if (password !== confirm) return "两次密码不一致";
+            return "";
+        }
+
+        // 登录页面
+        function showLogin(error = "") {
+            render(`
+        <h2>登录</h2>
+        ${error ? `<div class="error">${error}</div>` : ""}
+        <label>用户名或邮箱</label>
+        <input id="login_user" type="text" autocomplete="username" />
+        <label>密码</label>
+        <input id="login_pass" type="password" autocomplete="current-password" />
+        <button onclick="login()">登录</button>
+        <div style="margin-top:1em;">没有账号？<span class="link" onclick="showRegister()">注册</span></div>
+      `);
+        }
+
+        // 注册页面
+        function showRegister(error = "") {
+            render(`
+        <h2>注册</h2>
+        ${error ? `<div class="error">${error}</div>` : ""}
+        <label>用户名</label>
+        <input id="reg_user" type="text" />
+        <label>邮箱</label>
+        <input id="reg_email" type="email" />
+        <label>密码</label>
+        <input id="reg_pass" type="password" />
+        <label>确认密码</label>
+        <input id="reg_confirm" type="password" />
+        <button onclick="register()">注册</button>
+        <div style="margin-top:1em;">已有账号？<span class="link" onclick="showLogin()">登录</span></div>
+      `);
+        }
+
+        // 资料页面
+        function showProfile() {
+            if (!user) { logout(); return; }
+            render(`
+        <h2>用户资料</h2>
+        <p><b>用户名：</b>${user.username}</p>
+        <p><b>邮箱：</b>${user.email}</p>
+        <button class="logout" onclick="logout()">退出登录</button>
+      `);
+        }
+
+        // 登录逻辑
+        async function login() {
+            const username_or_email = document.getElementById("login_user").value.trim();
+            const password = document.getElementById("login_pass").value;
+            if (!username_or_email || !password) return showLogin("请填写所有字段");
+            try {
+                const res = await fetch(`${API}/user/log_in?username_or_email=${encodeURIComponent(username_or_email)}&password=${encodeURIComponent(password)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "登录失败");
+                token = data.access_token;
+                localStorage.setItem("token", token);
+                await fetchProfile();
+            } catch (e) {
+                showLogin(e.message);
+            }
+        }
+
+        // 注册逻辑
+        async function register() {
+            const username = document.getElementById("reg_user").value.trim();
+            const email = document.getElementById("reg_email").value.trim();
+            const password = document.getElementById("reg_pass").value;
+            const confirm = document.getElementById("reg_confirm").value;
+            const err = validateRegister({ username, email, password, confirm });
+            if (err) return showRegister(err);
+            try {
+                const res = await fetch(`${API}/user/register?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, { method: "POST" });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "注册失败");
+                // 注册成功后自动登录
+                await loginAfterRegister(username, password);
+            } catch (e) {
+                showRegister(e.message);
+            }
+        }
+
+        // 注册后自动登录的辅助函数
+        async function loginAfterRegister(username, password) {
+            try {
+                const res = await fetch(`${API}/user/log_in?username_or_email=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error("注册成功但自动登录失败");
+                token = data.access_token;
+                localStorage.setItem("token", token);
+                await fetchProfile();
+            } catch {
+                showLogin("注册成功，请手动登录");
+            }
+        }
+
+        // 获取用户资料
+        async function fetchProfile() {
+            if (!token) return showLogin();
+            try {
+                const res = await fetch(`${API}/user/profile?access_token=${encodeURIComponent(token)}`);
+                if (!res.ok) throw new Error("认证信息已过期，请重新登录");
+                user = await res.json();
+                showProfile();
+            } catch (e) {
+                logout(e.message);
+            }
+        }
+
+        // 退出登录
+        function logout(error) {
+            token = null;
+            user = null;
+            localStorage.removeItem("token");
+            showLogin(error);
+        }
+
+        // --- 初始化 ---
+        // 自动登录
+        window.onload = fetchProfile;
+        // 将函数挂载到window上，以便onclick可以调用
+        window.login = login;
+        window.register = register;
+        window.logout = logout;
+        window.showLogin = showLogin;
+        window.showRegister = showRegister;
+    </script>
+</body>
+
+</html>
