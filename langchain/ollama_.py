@@ -22,6 +22,12 @@ os.environ["ANONYMIZED_TELEMETRY"] = "False"  # 禁用ChromaDB遥测
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"  # 解决OpenMP冲突
 os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"  # 禁用transformers警告
 # 设置日志级别
+llm=Ollama(model="deepseek-r1:7b",
+base_url="http://localhost:8080",
+num_gpu=30
+# ,num_predict=40960
+)
+# llm = ChatTongyi(model="qwen-turbo", api_key=SecretStr("sk-1c9ecdbc37244d809ce41861a47b4e76"))
 import logging
 logging.basicConfig(level=logging.ERROR)  # 只显示ERROR以上级别日志
 loader =TextLoader("D:\下载\data\公司制度.txt",encoding='utf-8')

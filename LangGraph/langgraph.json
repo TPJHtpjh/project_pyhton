@@ -1,0 +1,23 @@
+{
+  "graph": {
+    "nodes": {
+      "chatbot": {
+        "type": "function",
+        "function": "app:chatbot_node"
+      }
+    },
+    "edges": [
+      {
+        "source": "chatbot",
+        "target": "END"
+      }
+    ],
+    "entry_point": "chatbot"
+  },
+  "state_schema": {
+    "messages": {
+      "type": "list",
+      "merge_strategy": "append"
+    }
+  }
+}

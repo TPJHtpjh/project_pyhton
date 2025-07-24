@@ -1,0 +1,44 @@
+.home-container {
+  display: flex;
+  height: 90vh;
+  overflow: hidden;
+  background-color: #E4E9F7; /* 添加背景色 */
+}
+
+.content-area {
+  flex: 1;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+  margin-top: 20px;
+}
+
+/* 当侧边栏关闭时的内容区域样式 */
+.content-area.closed {
+  margin-left: 88px; /* 与侧边栏关闭宽度一致 */
+}
+/* 侧边栏打开时的内容区域 */
+.shell:not(.close) ~ .content-area {
+  margin-left: 250px;
+}
+/* 暗黑模式适配 */
+.dark .home-container {
+  background-color: #202224;
+}
+
+/* 暗黑模式下使用星空背景 */
+.home-container.dark {
+  background-color: transparent; /* 移除原有深色背景 */
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .content-area {
+    margin-left: 0 !important;
+    padding: 10px;
+  }
+  
+  .shell.close ~ .content-area {
+    margin-left: 0;
+  }
+}
+

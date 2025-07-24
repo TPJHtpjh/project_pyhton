@@ -1,0 +1,27 @@
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.form-group input.error {
+  border-color: #e74c3c;
+}
+
+.submit-error {
+  display: block;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.backend-error {
+  color: #e74c3c;
+  margin-bottom: 12px;
+  text-align: center;
+}

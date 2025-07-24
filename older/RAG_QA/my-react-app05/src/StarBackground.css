@@ -1,0 +1,72 @@
+.star-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* 视口宽度，100%可能受父容器影响，vw更可靠 */
+  height: 100vh; /* 视口高度 */
+  pointer-events: none; /* 确保鼠标事件能穿透背景 */
+  z-index: 1; /* 确保在背景层，不覆盖内容 */
+  overflow: hidden;
+  display: none; /* 默认隐藏 */
+}
+
+/* 仅在暗黑模式下显示星空背景 */
+.star-background.active {
+  display: block;
+  background: radial-gradient(at 107% 30%, #3d4650 75px, #4a3d50 -4%, #1c1a2e 38%);
+}
+
+/* 星星样式 */
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(at 70% 30%, rgb(246, 243, 243) 1px, #fbfdff -4%, #eeeef4 38%);
+  box-shadow: 0 0 6px 1px rgb(37, 179, 249);
+  animation: myStar 5s linear infinite;
+}
+
+/* 流星样式 */
+.meteor {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(to right, rgb(255, 255, 255), rgba(0, 0, 0, 0));
+  box-shadow: 0 0 6px 1px rgb(37, 179, 249);
+  border-radius: 30px;
+  animation: myMeteor 1s linear forwards;
+}
+
+/* 繁星点点动画 */
+@keyframes myStar {
+  0% {
+    opacity: 0.5;
+    transform: translateX(0);
+  }
+  25% {
+    opacity: 1;
+    transform: translateX(-10px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(10px);
+  }
+  75% {
+    opacity: 1;
+    transform: translateX(10px);
+  }
+  100% {
+    opacity: 0.5;
+    transform: translateY(-10px);
+  }
+}
+
+/* 流星划过动画 */
+@keyframes myMeteor {
+  0% {
+    transform: translate(0, 0) rotate(-30deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-500px, 500px) rotate(-30deg);
+    opacity: 0;
+  }
+}

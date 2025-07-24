@@ -17,11 +17,15 @@ from langchain_community.llms import FakeListLLM
 from langchain_core.output_parsers import JsonOutputParser, PydanticOutputParser, StrOutputParser
 from langchain_community.callbacks import get_openai_callback
 from pydantic import BaseModel
-
+from langchain_community.llms import Ollama
 os.environ["DASHSCOPE_API_KEY"] = "sk-1c9ecdbc37244d809ce41861a47b4e76"
-llm = ChatTongyi(model_name="qwen-turbo",dashscope_api_key=os.environ["DASHSCOPE_API_KEY"])
+# llm = ChatTongyi(model_name="qwen-turbo",dashscope_api_key=os.environ["DASHSCOPE_API_KEY"])
 # LangChain LCEL (LangChain Expression Language) 链式调用示例
-
+llm=Ollama(model="deepseek-r1:7b",
+ base_url="http://localhost:8080",
+ num_gpu=30
+# # ,num_predict=40960
+ )
 # llm_=ChatOpenAI(
 #     model="your model_name_here",  # 替换为实际的模型名称
 #     temperature=0.1, # 控制生成文本的随机性，0.0表示完全确定性
@@ -65,7 +69,8 @@ class Person(BaseModel):#自定义输出结构体
     age:int
 parser2=PydanticOutputParser(pydantic_object=Person)#返回自定义pydantic模型
 prompt_template='''
-  提取用户姓名和年龄{input}
+  提取角色姓名和年龄{input}
+  若有多个角色，只回答年龄最大的角色。
   回答{format_instructions}
 '''
 prompt_template=PromptTemplate(
@@ -74,7 +79,7 @@ prompt_template=PromptTemplate(
     partial_variables={"format_instructions":parser2.get_format_instructions()}
      )
 chain4=prompt_template|llm|parser2
-result5=chain4.invoke({"input":"张三今年18岁了，李四去年比他大一岁。"})
+result5=chain4.invoke({"input":"张三今年18岁了，李四去年比现在的他大一岁。"})
 print(result5.name,result5.age)
 chain2 = prompt2 | llm1 | parser
 chain3 = prompt3 | llm1 | parser

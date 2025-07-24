@@ -1,0 +1,67 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* 恢复完整视口高度 */
+  padding: 20px;
+  background: transparent; /* 移除背景色 */
+}
+
+.profile-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+/* 其余样式保持不变 */
+.profile-card h2 {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+.profile-info {
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #555;
+  width: 80px;
+}
+
+.info-value {
+  color: #333;
+  flex: 1;
+}
+
+.logout-button {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-weight: 600;
+}
+
+.logout-button:hover {
+  background: #ff7875;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 77, 79, 0.3);
+}

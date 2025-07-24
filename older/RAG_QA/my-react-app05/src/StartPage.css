@@ -1,0 +1,59 @@
+/* StartPage.css */
+.start-page-container {
+  /* 移除顶部导航栏高度减去值，使用完整视口高度 */
+  min-height: 100vh;
+  padding: 2rem;
+  /* 为左侧侧边栏留出空间，避免内容被遮挡 */
+  margin-left: 88px; /* 匹配侧边栏收缩状态的宽度 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--body-color); /* 使用全局背景色变量，适配明暗主题 */
+  transition: all 0.3s ease; /* 配合侧边栏展开/收缩的过渡效果 */
+}
+
+/* 当侧边栏展开时，增加左侧间距 */
+.shell:not(.close) ~ .content-area .start-page-container {
+  margin-left: 250px; /* 匹配侧边栏展开状态的宽度 */
+}
+
+.start-content {
+  text-align: center;
+  max-width: 600px;
+  width: 100%; /* 确保在小屏幕上自适应 */
+  padding: 2.5rem;
+  border-radius: 12px;
+  background-color: var(--shell-color); /* 使用全局卡片色变量 */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.start-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-color); /* 使用全局文本色变量 */
+  font-weight: 700;
+}
+
+.start-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
+  color: var(--text-color); /* 使用全局文本色变量 */
+  opacity: 0.9; /* 稍淡一级的文本 */
+  line-height: 1.6;
+}
+
+.start-button {
+  font-size: 1.2rem !important;
+  padding: 0.75rem 2rem !important;
+  border-radius: 8px !important;
+  background-color: var(--primary-color) !important; /* 使用全局主色变量 */
+  color: white !important;
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.3s ease !important;
+}
+
+.start-button:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 6px 15px rgba(105, 92, 254, 0.3) !important;
+}

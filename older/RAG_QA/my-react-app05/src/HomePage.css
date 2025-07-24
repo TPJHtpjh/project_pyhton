@@ -1,0 +1,31 @@
+.home-container {
+  display: flex;
+  height: 100vh;
+  background-color: #E4E9F7; /* 添加背景色 */
+  position: relative; /* 作为星空背景的容器 */
+  /* overflow: hidden; 防止出现滚动条 */
+}
+
+.content-area {
+  flex: 1;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+  position: relative; /* 确保内容在星空之上 */
+  z-index: 10; /* 高于星空背景 */
+}
+
+/* 当侧边栏关闭时的内容区域样式 */
+.content-area.closed {
+  margin-left: 88px; /* 与侧边栏关闭宽度一致 */
+}
+/* 侧边栏打开时的内容区域 */
+.shell:not(.close) ~ .content-area {
+  margin-left: 250px;
+}
+/* 暗黑模式下使用星空背景 */
+.home-container.dark {
+  background-color: transparent; /* 移除原有深色背景 */
+}
+
+
+

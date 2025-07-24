@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  astro-llm:
+    build: .
+    container_name: astro_llm_app
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: 192.168.18.2
+      DB_USER: LLM_DB
+      DB_PASSWORD: LLM_DB
+      DB_NAME: LLM_DB
+      DEEPSEEK_API_KEY: sk-dab0cb0c36594ba88b3aec41a4bbde6c
+      SECRET_KEY: your-secret-key
+      CHROMA_DB_PATH: /app/chroma_db
+      KNOWLEDGE_BASE_DIR: /app/knowledge_base
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      SAFETENSORS_FAST_GPU: 0
+      HF_HOME: /app/models
+      TRANSFORMERS_OFFLINE: 1
+#    env_file:
+#      - .env
+    volumes:
+      - .:/app
+      - ./chroma_db:/app/chroma_db
+      - ./uploads:/app/uploads
+      - ./knowledge_base:/app/knowledge_base
+      - ./models:/app/models
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]

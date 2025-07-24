@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Manager</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .search-form {
+            margin-bottom: 20px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-form">
+        <form method="post" action="{% url 'search_student' %}">
+            {% csrf_token %}
+            <label>
+                Input the student name:
+                <input type="text" name="name" value="{{ request.POST.name|default:'' }}">
+            </label>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if error %}
+        <div class="error">Error: {{ error }}</div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Credits</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.ID }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.dept_name }}</td>
+                <td>{{ student.tot_cred }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No students found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

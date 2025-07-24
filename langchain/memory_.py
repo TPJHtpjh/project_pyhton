@@ -74,3 +74,98 @@ def entity_conversation():
 
 sum_conversation()
 
+'''SimpleMemory'''
+from langchain.memory import SimpleMemory
+memory = SimpleMemory(memories={"foo": "bar"})
+output = memory.load_memory_variables({})
+print(output) # {'foo': 'bar'}
+
+'''ReadOnlySharedMemory'''
+from langchain.memory import ReadOnlySharedMemory, ConversationBufferMemory
+memory = ConversationBufferMemory(memory_key="chat_history")
+read_only_memory = ReadOnlySharedMemory(memory=memory)
+memory.save_context({"input": "hello"}, {"output": "hi"})
+result = read_only_memory.load_memory_variables({})
+# result == memory.load_memory_variables({})
+
+'''RunnableWithMessageHistory'''
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
+from langchain_core.chat_history import InMemoryChatMessageHistory
+store = {}
+def get_session_history1(session_id: str) -> InMemoryChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
+llm = ChatOpenAI(model="gpt-3.5-turbo")
+chain = RunnableWithMessageHistory(llm, get_session_history1)
+response = chain.invoke(
+{"input": "Hello, how are you?"},
+config={"configurable": {"session_id": "abc123"}}
+)
+print(response)
+
+'''ConversationBufferWindowMemory'''
+from langchain.memory import ConversationBufferWindowMemory
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
+store = {}
+def get_session_history2(session_id: str) -> InMemoryChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = InMemoryChatMessageHistory()
+    return store[session_id]
+memory = ConversationBufferWindowMemory(
+chat_memory=store["session_id"],
+return_messages=True,
+k=3 # 保留最近3条记录
+)
+print(memory.memory_variables) # 输出记忆变量名
+key = memory.memory_variables[0]
+messages = memory.load_memory_variables({})[key]
+# 更新会话历史
+store["session_id"] = InMemoryChatMessageHistory(messages=messages)
+llm = ChatOpenAI(model="gpt-3.5-turbo")
+chain = RunnableWithMessageHistory(llm, get_session_history2)
+response = chain.invoke(
+{"input": "What's the weather today?"},
+config={"configurable": {"session_id": "abc123"}}
+)
+print(response)
+
+'''自定义记忆类'''
+'''
+必须实现四个核心方法：
+memory_variables : 返回记忆变量名列表
+load_memory_variables : 加载记忆内容
+save_context : 保存输入/输出到记忆
+clear : 清空记忆
+'''
+from langchain_core.memory import BaseMemory
+from typing import Any, Dict, List
+# 由于CustomMemory继承自BaseMemory，必须实现clear方法，否则会报错
+class CustomMemory(BaseMemory):
+    memories: Dict[str, Any] = {}
+
+    @property
+    def memory_variables(self) -> List[str]:
+        return list(self.memories.keys())
+
+    def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
+        return self.memories
+
+    def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]):
+        for key in inputs:
+            self.memories[key] = inputs[key]
+        for key in outputs:
+            self.memories[key] = outputs[key]
+
+    def clear(self):
+        self.memories.clear()
+
+custom_memory = CustomMemory()
+custom_memory.save_context({"input": "hello"}, {"output": "hi"})
+output = custom_memory.load_memory_variables({})
+print(output)  # {'input': 'hello', 'output': 'hi'}
+
